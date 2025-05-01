@@ -6,7 +6,19 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
-  app.enableCors();
+  
+  // Configure CORS with specific settings
+  app.enableCors({
+    origin: [
+      'http://localhost:5173', // Local Vite development
+      'https://reminder-media-fe.vercel.app', // Production frontend
+    ],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Accept', 'Authorization'],
+    preflightContinue: false,
+    optionsSuccessStatus: 204
+  });
 
   const config = new DocumentBuilder()
     .setTitle('Simple Social Media API')
@@ -14,6 +26,7 @@ async function bootstrap() {
     .addSecurityRequirements('bearer')
     .build();
   const document = SwaggerModule.createDocument(app, config);
+  
   // Serve raw OpenAPI JSON
   app.use('/api/swagger-json', (req, res) => {
     res.setHeader('Content-Type', 'application/json');
